@@ -7,7 +7,7 @@ import { SigninValidation } from "@/lib/validation";
 
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/shadcn/use-toast";
 import {
   Form,
   FormControl,

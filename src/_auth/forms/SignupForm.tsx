@@ -14,7 +14,7 @@ import { SignupValidation } from "@/lib/validation";
 import { z } from "zod";
 import Loader from "@/components/ui/Loader";
 import { Link, useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/shadcn/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-qurey/queriesAndMutations";
 
