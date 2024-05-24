@@ -16,7 +16,7 @@ import Loader from "@/components/ui/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/shadcn/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { useCreateUserAccount, useSignInAccount } from "@/lib/react-qurey/queriesAndMutations";
+import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 
 const SignupForm = () => {
   const { toast } = useToast();

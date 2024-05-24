@@ -19,7 +19,7 @@ import {
 import Loader from "@/components/ui/Loader";
 
 import { useAuth } from "@/context/AuthContext";
-import { useSignInAccount } from "@/lib/react-qurey/queriesAndMutations";
+import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 
 const SigninForm = () => {
   const { toast } = useToast();

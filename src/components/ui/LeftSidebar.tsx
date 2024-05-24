@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../shadcn/button";
-import { useSignOutAccount } from "@/lib/react-qurey/queriesAndMutations";
+import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
 import { useAuth } from "@/context/AuthContext";
 import { sidebarLinks } from "@/constants";
 import { INavLink } from "@/types";
