@@ -159,9 +159,9 @@ export async function getFilePreview(fileId: string) {
     const fileUrl = appwriteStorage.getFilePreview(
       appwriteConfig.storageId,
       fileId,
-      2000,
-      2000,
-      ImageGravity.Top,
+      1920,
+      0,
+      ImageGravity.Center,
       100
     );
 
