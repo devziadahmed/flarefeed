@@ -159,7 +159,7 @@ export async function getFilePreview(fileId: string) {
     const fileUrl = appwriteStorage.getFilePreview(
       appwriteConfig.storageId,
       fileId,
-      1920,
+      2000,
       0,
       ImageGravity.Center,
       100
@@ -194,6 +194,56 @@ export async function getRecentPosts() {
     if (!posts) throw new Error("services/getRecentPosts(): couldn't get recent posts");
 
     return posts;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function likePost(postId: string, likesArray: string[]) {
+  try {
+    const updatedPost = await appwriteDatabases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      postId,
+      { likes: likesArray }
+    );
+
+    if (!updatedPost) throw new Error("likePost(): couldn't update likes");
+
+    return updatedPost;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function savePost(postId: string, userId: string) {
+  try {
+    const savedPost = await appwriteDatabases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      ID.unique(),
+      { user: userId, post: postId }
+    );
+
+    if (!savedPost) throw new Error("savePost(): couldn't save post");
+
+    return savedPost;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteSavedPost(saveRecordId: string) {
+  try {
+    const statusCode = await appwriteDatabases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      saveRecordId
+    );
+
+    if (!statusCode) throw new Error("deleteSavedPost(): couldn't delete saved post");
+
+    return { status: "ok" };
   } catch (error) {
     console.error(error);
   }

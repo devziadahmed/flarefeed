@@ -7,12 +7,17 @@ import {
 import {
   createPost,
   createUserAccount,
+  deleteSavedPost,
+  getCurrentUser,
   getRecentPosts,
+  likePost,
+  savePost,
   signInAccount,
   signOutAccount,
 } from "../appwrite/services";
 import { INewPost, INewUser } from "@/types";
 import { QueryKeys } from "./queryKeys";
+import { toast } from "@/components/shadcn/use-toast";
 
 export const useCreateUserAccount = () => {
   const { mutateAsync, isPending } = useMutation({
@@ -59,4 +64,77 @@ export const useGetRecentPosts = () => {
   });
 
   return { data, isPending, isError };
+};
+
+export const useLikePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, likesArray }: { postId: string; likesArray: string[] }) =>
+      likePost(postId, likesArray),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_POST_BY_ID, data?.$id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_RECENT_POSTS, data?.$id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_POSTS, data?.$id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_CURRENT_USER, data?.$id],
+      });
+    },
+  });
+};
+
+export const useSavePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, userId }: { postId: string; userId: string }) =>
+      savePost(postId, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_RECENT_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_CURRENT_USER],
+      });
+
+      toast({ title: "Post saved successfully!" });
+    },
+  });
+};
+
+export const useDeleteSavedPost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (savedRecordId: string) => deleteSavedPost(savedRecordId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_RECENT_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_CURRENT_USER],
+      });
+
+      toast({ title: "Post removed from Saved!" });
+    },
+  });
+};
+
+export const useGetCurrentUser = () => {
+  return useQuery({
+    queryKey: [QueryKeys.GET_CURRENT_USER],
+    queryFn: getCurrentUser,
+  });
 };

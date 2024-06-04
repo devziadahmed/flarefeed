@@ -1,3 +1,4 @@
+import { Models } from "appwrite";
 import React from "react";
 
 export type INavLink = {
