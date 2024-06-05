@@ -1,6 +1,6 @@
 import { ID, ImageGravity, Query } from "appwrite";
 
-import { INewPost, INewUser } from "@/types";
+import { INewPost, INewUser, IUpdatePost } from "@/types";
 import {
   appwriteAccount,
   appwriteAvatars,
@@ -242,6 +242,85 @@ export async function deleteSavedPost(saveRecordId: string) {
     );
 
     if (!statusCode) throw new Error("deleteSavedPost(): couldn't delete saved post");
+
+    return { status: "ok" };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getPostById(postId: string) {
+  try {
+    const post = await appwriteDatabases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      postId
+    );
+
+    return post;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updatePost(post: IUpdatePost) {
+  try {
+    const hasFileToUpdate = post.file.length > 0;
+
+    let image = { imageUrl: post.imageUrl, imageId: post.imageId };
+
+    if (hasFileToUpdate) {
+      const uploadedFile = await uploadFile(post.file[0]);
+
+      if (!uploadedFile) throw new Error("services/createPost(): couldn't upload file");
+
+      const fileUrl = await getFilePreview(uploadedFile.$id);
+
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw new Error("services/updatePost(): couldn't upload file");
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+    const tags = post.tags?.replace(/\s/g, "").split(",") || [];
+
+    const updatedPost = await appwriteDatabases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      post.postId,
+      {
+        caption: post.caption,
+        imageUrl: image.imageUrl,
+        imageId: image.imageId,
+        location: post.location,
+        tags: tags,
+      }
+    );
+
+    if (!updatedPost) {
+      await deleteFile(post.imageId);
+      throw new Error("services/createPost(): couldn't create new post");
+    }
+
+    return updatedPost;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deletePost(postId: string, imageId: string) {
+  if (!postId || imageId) {
+    throw new Error("services/deletePost(): couldn't create delete post");
+  }
+
+  try {
+    await appwriteDatabases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      postId
+    );
 
     return { status: "ok" };
   } catch (error) {
