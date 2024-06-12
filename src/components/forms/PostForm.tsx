@@ -20,6 +20,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "../shadcn/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations";
+import Loader from "../ui/Loader";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -147,9 +148,9 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button
             type="submit"
             disabled={isCreatePost || isUpdatePost}
-            className="shad-button_primary whitespace-nowrap"
+            className="w-[114px] shad-button_primary whitespace-nowrap"
           >
-            {isCreatePost || isUpdatePost ? "Updating..." : "Update post"}
+            {isCreatePost || isUpdatePost ? <Loader /> : `${action} post`}
           </Button>
         </div>
       </form>
