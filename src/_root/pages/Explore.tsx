@@ -1,19 +1,28 @@
-import { useState } from "react";
-import { Input } from "@/components/shadcn/input";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
-import GridPostList from "@/components/ui/GridPostList";
-import SearchResults from "@/components/ui/SearchResults";
 import { useGetPosts, useSearchPost } from "@/lib/react-query/queriesAndMutations";
 import useDebounce from "@/hooks/useDebounce";
+
+import { Input } from "@/components/shadcn/input";
+import GridPostList from "@/components/ui/GridPostList";
+import SearchResults from "@/components/ui/SearchResults";
 import Loader from "@/components/ui/Loader";
 
 const Explore = () => {
+  const { ref, inView } = useInView();
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
 
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue);
 
   const { data: searchedPosts, isFetching: isSearchFetching } = useSearchPost(debouncedSearch);
+
+  useEffect(() => {
+    if (inView && !searchValue) {
+      fetchNextPage();
+    }
+  }, [inView, searchValue]);
 
   if (!posts)
     return (
@@ -23,8 +32,7 @@ const Explore = () => {
     );
 
   const shouldShowSearchResults = searchValue !== "";
-  const shouldShowPosts =
-    !shouldShowSearchResults && posts.pages.every((item) => item.documents.length === 0);
+  const shouldShowPosts = !shouldShowSearchResults && posts.pages.length > 0;
 
   return (
     <div className="explore-container">
@@ -53,15 +61,26 @@ const Explore = () => {
 
       <div className="flex flex-wrap gap-9 w-full max-w-5xl">
         {shouldShowSearchResults ? (
-          <SearchResults />
+          <SearchResults
+            isSearchFetching={isSearchFetching}
+            searchedPosts={searchedPosts || undefined}
+          />
         ) : shouldShowPosts ? (
-          <p className="text-light-4 mt-10 text-center w-full">End of posts</p>
-        ) : (
           posts.pages.map((item, index) => (
             <GridPostList key={`page-${index}`} posts={item.documents} />
           ))
+        ) : (
+          <p className="text-light-4 mt-10 text-center w-full">No posts to show</p>
         )}
       </div>
+
+      {hasNextPage && !searchValue ? (
+        <div ref={ref} className="mt-10">
+          <Loader />
+        </div>
+      ) : (
+        <p className="text-light-4 mt-10 text-center w-full">End of posts</p>
+      )}
     </div>
   );
 };
